@@ -1,0 +1,14 @@
+runtime: python37
+entrypoint: "gunicorn -b :$PORT main:app"
+
+handlers:
+  - url: /.*
+    secure: always
+    script: auto
+
+env_variables:
+  STATIC_BASE_URL: {{#static}}{{protocol}}://{{host}}{{#port}}:{{.}}{{/port}}{{#path}}/{{.}}{{/path}}{{/static}}
+  APP_SECRET: {{secret}}
+  APP_CLIENT_SECRET: config/client_secret.json
+  GOOGLE_APPLICATION_CREDENTIALS: config/service_account.json
+

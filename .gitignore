@@ -1,0 +1,5 @@
+*.egg-info
+/config
+/backend
+/.env*
+*.pyc

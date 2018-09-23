@@ -1,0 +1,5 @@
+protocol: https
+host: storage.googleapis.com
+port: 80
+path: {{project}}/static
+
