@@ -5,7 +5,7 @@ import colorama
 logging.basicConfig(level=logging.INFO)
 colorama.init()  # terminal colors shim for Windows
 
-from .cmd import init, service, build, req
+from .cmd import init, service, build, req, deploy
 from .log import Log
 
 
@@ -26,6 +26,10 @@ def main():
     # build
     build_cmd = build_parser(sub)
     add_common_args(build_cmd)
+
+    # deploy
+    deploy_cmd = deploy_parser(sub)
+    add_common_args(deploy_cmd)
 
     args = cmd.parse_args()
     if args.verbose == True:
@@ -85,10 +89,18 @@ def req_install_parser(root):
     return cmd
 
 def build_parser(root):
-    cmd = root.add_parser('build')
+    cmd = root.add_parser('build', description="Build, lint and test service locally")
     cmd.add_argument('env', help='Runtime environment')
     cmd.add_argument('-s', '--service', help='Name of the service', default='default')
     cmd.set_defaults(func=build.run)
+    return cmd
+
+def deploy_parser(root):
+    cmd = root.add_parser('deploy', description="Build and deploy service to Google App Engine")
+    cmd.add_argument('env', help='Runtime environment (GAE version)')
+    cmd.add_argument('-s', '--service', help='Name of the service', default='default')
+    cmd.add_argument('-c', '--config', help='Config (yaml) files to deploy', default='*.yaml')
+    cmd.set_defaults(func=deploy.run)
     return cmd
 
 def add_common_args(parser):

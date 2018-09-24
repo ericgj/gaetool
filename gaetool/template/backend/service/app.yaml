@@ -1,5 +1,6 @@
 runtime: python37
 entrypoint: "gunicorn -b :$PORT main:app"
+service: {{service}}
 
 handlers:
   - url: /.*

@@ -12,6 +12,10 @@ def config_file(dir, fname):
     return os.path.join( config_dir(dir), fname )
 
 
+def read_project_id(env):
+    data = read_config_yaml(env, 'project')
+    return None if data is None else data.get('id')
+
 def make_config_dir(env, force=False):
     targetdir = config_dir(env)
     if force and os.path.exists(targetdir):
@@ -20,14 +24,11 @@ def make_config_dir(env, force=False):
         os.makedirs( targetdir, exist_ok=True)
 
 def update_config_yaml(env, name, key, value):
-    fname = config_file(env, name + ".yaml")
-    data = None
-    if os.path.isfile(fname):
-        with open(fname,'r') as f:
-            data = yaml.safe_load(f)
+    data = read_config_yaml(env, name)
     if data is None:
         data = {}
     data[key] = value
+    fname = config_file(env, name + ".yaml")
     with open(fname, 'w') as f:
         f.write(yaml.dump(data))
 
@@ -38,6 +39,14 @@ def write_config(env, name, value, force=False):
     with open(fname,'w') as f:
         f.write(value)
 
+def read_config_yaml(env, name):
+    fname = config_file(env, name + ".yaml")
+    if not os.path.isfile(fname):
+        return None
+    data = None
+    with open(fname,'r') as f:
+        data = yaml.safe_load(f)
+    return data
 
 def copy_config_files(env, target, force=False):
     sourcedir = config_dir(env)

@@ -11,14 +11,17 @@ from ._virtualenv import service_virtualenv, virtualenv_cmd
 BUILD_ROOT = 'build'
 
 def run(log, args):
-    with log("build", env=args.env, service=args.service):
+    build(args.env, args.service, log=log)
+    build_lint(log=log)
+    build_test(args.service, log=log)
+
+def build(env, service, *, log):
+    with log("build: %s %s" % (env,service), env=env, service=service):
         build_clear_build(log=log)
-        build_copy_config(args.env, log=log)
+        build_copy_config(env, log=log)
         build_copy_backend_common(log=log)
-        build_copy_backend_service(args.service, log=log)
-        build_backend_templates(args.env, args.service, log=log)
-        build_lint(log=log)
-        build_test(args.service, log=log)
+        build_copy_backend_service(service, log=log)
+        build_backend_templates(env, service, log=log)
 
 def build_clear_build(*, log):
     with log("clear build"):
