@@ -5,7 +5,7 @@ import colorama
 logging.basicConfig(level=logging.INFO)
 colorama.init()  # terminal colors shim for Windows
 
-from .cmd import init, service, build
+from .cmd import init, service, build, req
 from .log import Log
 
 
@@ -19,6 +19,9 @@ def main():
 
     # service
     service_parser(sub)
+
+    # req
+    req_parser(sub)
 
     # build
     build_cmd = build_parser(sub)
@@ -34,7 +37,7 @@ def main():
 
 
 def init_parser(root):
-    cmd = root.add_parser('init', help='Initialize a project')
+    cmd = root.add_parser('init', description='Initialize a project')
     cmd.add_argument('project', help='Google App Engine project ID')
     cmd.add_argument('-e', '--env', action='append',
         default=['development','test','staging','production'],
@@ -54,9 +57,31 @@ def service_parser(root):
     return cmd
 
 def service_add_parser(root):
-    cmd = root.add_parser('add')
+    cmd = root.add_parser('add', description='Add a backend service')
     cmd.add_argument('service', help='Name of the service')
     cmd.set_defaults(func=service.run_add)
+    return cmd
+
+def req_parser(root):
+    cmd = root.add_parser('req')
+    sub = cmd.add_subparsers(help='actions on requirements')
+
+    # install
+    req_install = req_install_parser(sub)
+    add_common_args(req_install)
+
+    return cmd
+
+def req_install_parser(root):
+    cmd = root.add_parser('install', description='Install and freeze requirements')
+    cmd.add_argument('-s', '--service', help='Name of the service', default='default')
+    cmd.add_argument('--uninstall', dest='uninstall', action='store_true',
+        help='Uninstall existing libraries first'
+    )
+    cmd.add_argument('--no-uninstall', dest='uninstall', action='store_false',
+        help='Do not uninstall existing libraries first (default)'
+    )
+    cmd.set_defaults(uninstall=False, func=req.run_install)
     return cmd
 
 def build_parser(root):

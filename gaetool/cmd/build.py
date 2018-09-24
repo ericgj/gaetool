@@ -6,6 +6,7 @@ import subprocess
 from ._config import config_dir, copy_config_files
 from ._backend import backend_dir, copy_backend_dir, copy_backend_files
 from ._template import render_templates
+from ._virtualenv import service_virtualenv, virtualenv_cmd
 
 BUILD_ROOT = 'build'
 
@@ -66,18 +67,17 @@ def run_lint():
             stderr=subprocess.PIPE, stdout=subprocess.PIPE, check=True 
         )
     except subprocess.CalledProcessError as e:
-        raise Exception("Lint error(s) (flake8):\n" + e.stderr.decode('utf-8'))
+        raise Exception(
+            "Lint error(s) (flake8):\n" + 
+            e.stderr.decode('utf-8') + "\n" +
+            e.stdout.decode('utf-8')
+        )
 
 def run_tests(service):
-    subprocess.run( " && ".join( [ virtualenv_cmd(service), python_test_cmd()] ), 
+    subprocess.run( 
+        " && ".join( [ virtualenv_cmd(service_virtualenv(service)), python_test_cmd()] ), 
         shell=True, check=True
     )
-
-def virtualenv_cmd( service ):
-    if os.name == 'nt':
-        return ".env-{service}\\Scripts\\activate".format( service=service)
-    else:
-        return ". .env-{service}/bin/activate".format( service=service)
 
 def python_test_cmd():
     if os.name == 'nt':

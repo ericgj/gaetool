@@ -7,6 +7,9 @@ BACKEND_ROOT = 'backend'
 def backend_dir(dir):
     return os.path.join(BACKEND_ROOT, dir)
 
+def backend_service_file(service, name):
+    return os.path.join(BACKEND_ROOT, service, name)
+
 def copy_backend_dir(service, target, force=False):
     sourcedir = backend_dir(service)
     targetdir = os.path.join( target, os.path.basename(sourcedir) ) 

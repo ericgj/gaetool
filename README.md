@@ -31,7 +31,7 @@ environments on Google App Engine.
 
 6. Update (and freeze) requirements:
 
-    gae req update --service="my-service" --service="my-other-service"
+    gae req install --service="my-service" 
 
 7. Build (and lint and test) a service:
 
