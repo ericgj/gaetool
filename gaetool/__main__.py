@@ -5,7 +5,7 @@ import colorama
 logging.basicConfig(level=logging.INFO)
 colorama.init()  # terminal colors shim for Windows
 
-from .cmd import init
+from .cmd import init, service, build
 from .log import Log
 
 
@@ -14,8 +14,15 @@ def main():
     sub = cmd.add_subparsers(help='command help')
     
     # init
-    init = init_parser(sub)
-    add_common_args(init)
+    init_cmd = init_parser(sub)
+    add_common_args(init_cmd)
+
+    # service
+    service_parser(sub)
+
+    # build
+    build_cmd = build_parser(sub)
+    add_common_args(build_cmd)
 
     args = cmd.parse_args()
     if args.verbose == True:
@@ -34,6 +41,29 @@ def init_parser(root):
         help='Extra environment'
     )
     cmd.set_defaults(func=init.run)
+    return cmd
+
+def service_parser(root):
+    cmd = root.add_parser('service')
+    sub = cmd.add_subparsers(help='actions on services')
+
+    # add
+    service_add = service_add_parser(sub)
+    add_common_args(service_add)
+
+    return cmd
+
+def service_add_parser(root):
+    cmd = root.add_parser('add')
+    cmd.add_argument('service', help='Name of the service')
+    cmd.set_defaults(func=service.run_add)
+    return cmd
+
+def build_parser(root):
+    cmd = root.add_parser('build')
+    cmd.add_argument('env', help='Runtime environment')
+    cmd.add_argument('-s', '--service', help='Name of the service', default='default')
+    cmd.set_defaults(func=build.run)
     return cmd
 
 def add_common_args(parser):
