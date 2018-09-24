@@ -14,6 +14,22 @@ def run_install(log, args):
         req_install(args.service, log=log)
         req_freeze(args.service, log=log)
 
+def run_add(log, args):
+    services = list(set(
+        ['default'] if len(args.service) == 0 else args.service
+    ))
+    with log('add requirements', services=services, requirements=args.requirement):
+        for service in services:
+            req_add(service, args.requirement, log=log)
+
+def req_add(service, reqs, *, log):
+    with log('add requirements: %s' % (service,), service=service, requirements=reqs):
+        append_requirements( 
+            backend_service_file(service, 'requirements-.txt'),
+            reqs 
+        )
+
+
 def req_create_virtualenv(service, *, log, force=False):
     with log('create virtualenv', service=service):
         create_virtualenv( service_virtualenv(service), force=force)
@@ -33,4 +49,12 @@ def req_freeze(service, *, log):
         freeze_virtualenv( service_virtualenv(service),
             backend_service_file(service, 'requirements.txt')
         )
+
+
+
+def append_requirements( reqfile, reqs ):
+    with open(reqfile, 'a') as f:
+        for req in reqs:
+            print(req, file=f)
+
 

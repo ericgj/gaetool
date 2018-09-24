@@ -10,7 +10,7 @@ from .log import Log
 
 
 def main():
-    cmd = ArgumentParser(description='Deployment tools for Python GAE projects')
+    cmd = ArgumentParser(description='Deployment tools for Python Google App Engine projects')
     sub = cmd.add_subparsers(help='command help')
     
     # init
@@ -74,6 +74,10 @@ def req_parser(root):
     req_install = req_install_parser(sub)
     add_common_args(req_install)
 
+    # add
+    req_add = req_add_parser(sub)
+    add_common_args(req_add)
+
     return cmd
 
 def req_install_parser(root):
@@ -88,6 +92,17 @@ def req_install_parser(root):
     cmd.set_defaults(uninstall=False, func=req.run_install)
     return cmd
 
+def req_add_parser(root):
+    cmd = root.add_parser('add', description='Add requirements across services')
+    cmd.add_argument('requirement', metavar='REQ', nargs='+',
+        help='Requirement to add (in pip install format)'
+    )
+    cmd.add_argument('-s', '--service', action='append', default=[],
+        help='Name of the service ("default" if none specified), multiple can be specified'
+    )
+    cmd.set_defaults(func=req.run_add)
+    return cmd
+  
 def build_parser(root):
     cmd = root.add_parser('build', description="Build, lint and test service locally")
     cmd.add_argument('env', help='Runtime environment')
