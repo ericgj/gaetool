@@ -122,9 +122,14 @@ def build_parser(root):
 def templ_parser(root):
     cmd = root.add_parser('template', description="Generic build from templates")
     cmd.add_argument('env', help='Runtime environment (determines config)')
-    cmd.add_argument('template_dir', help='Source (template) directory')
+    cmd.add_argument('source_dir', help='Source directory')
     cmd.add_argument('target_dir', help='Target (build) directory')
-    cmd.add_argument('--file-ext', default='yaml', help='File extension of templates')
+    cmd.add_argument('--template-dir', 
+        help='Source subdirectory for templates (default: .)'
+    )
+    cmd.add_argument('--file-ext', default='yaml', 
+        help='File extension of templates (default: yaml)'
+    )
     cmd.set_defaults(func=template.run)
     return cmd
 

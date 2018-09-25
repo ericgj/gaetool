@@ -6,11 +6,19 @@ from ._config import config_dir, copy_config_files
 from ._template import render_templates
 
 def run(log, args):
+    template_dir = (
+        args.source_dir if args.template_dir is None else 
+        os.path.join(args.source_dir, args.template_dir)
+    )
+    template_target_dir = (
+        args.target_dir if args.template_dir is None else
+        os.path.join(args.target_dir, args.template_dir)
+    )
     with log('template: %s' % (args.env,), env=args.env):
         template_clear_target(target_dir=args.target_dir, log=log)
         template_copy_config(args.env, target_dir=args.target_dir, log=log)
-        template_copy(args.template_dir, target_dir=args.target_dir, log=log)
-        template_render(args.env, args.template_dir, args.target_dir, 
+        template_copy(args.source_dir, target_dir=args.target_dir, log=log)
+        template_render(args.env, template_dir, template_target_dir, 
              file_ext=args.file_ext, log=log
         )
 
