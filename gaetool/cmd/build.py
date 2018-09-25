@@ -2,8 +2,9 @@ import os
 import os.path
 import shutil
 import subprocess
+import ruamel.yaml as yaml
 
-from ._config import config_dir, copy_config_files
+from ._config import config_dir, copy_config_files, read_project_id
 from ._backend import backend_dir, copy_backend_dir, copy_backend_files
 from ._template import render_templates
 from ._virtualenv import service_virtualenv, virtualenv_cmd
@@ -13,7 +14,7 @@ BUILD_ROOT = 'build'
 def run(log, args):
     build(args.env, args.service, log=log)
     build_lint(log=log)
-    build_test(args.service, log=log)
+    build_test(args.env, args.service, log=log)
 
 def build(env, service, *, log):
     with log("build: %s %s" % (env,service), env=env, service=service):
@@ -52,9 +53,9 @@ def build_lint(*, log):
     with log("linting"):
         run_lint()
 
-def build_test(service, *, log):
-    with log("testing", service=service):
-        run_tests(service)
+def build_test(env, service, *, log):
+    with log("testing", env=env, service=service):
+        run_tests(env, service)
 
 
 # Implementation
@@ -76,16 +77,48 @@ def run_lint():
             e.stdout.decode('utf-8')
         )
 
-def run_tests(service):
+def run_tests(env, service):
     subprocess.run( 
-        " && ".join( [ virtualenv_cmd(service_virtualenv(service)), python_test_cmd()] ), 
+        " && ".join( 
+            [ virtualenv_cmd(service_virtualenv(service)) ] + 
+            environ_var_assigns(env) +
+            python_test_cmd() 
+        ), 
         shell=True, check=True
+    )
+
+
+def environ_var_assigns(env):
+    vars = read_environ_vars()
+    if os.name == 'nt':
+        return environ_var_assigns_nt(env, vars)
+    else:
+        return environ_var_assigns_posix(env, vars)
+
+def environ_var_assigns_nt(env, vars):
+    return [ "SET %s=%s" % (k,v) for (k,v) in vars.items() ]
+
+def environ_var_assigns_posix(env, vars):
+    project = read_project_id(env)
+    return (
+        [ "export %s=%s" % (k,v) for (k,v) in vars.items() ] +
+        [ "export GOOGLE_CLOUD_PROJECT=%s" % (project,) ]
     )
 
 def python_test_cmd():
     if os.name == 'nt':
-        return "cd build && python -m unittest test\\test_* --buffer"
+        return [ "cd build", "python -m unittest test\\test_* --buffer" ]
     else:
-        return "cd build && python -m unittest test/test_* --buffer"
+        return [ "cd build", "python -m unittest test/test_* --buffer" ]
 
+
+def read_environ_vars():
+    data = read_yaml( os.path.join(BUILD_ROOT,'app.yaml') )
+    return data.get('env_variables',{})
+
+def read_yaml(fname):
+    data = None
+    with open(fname, 'r') as f:
+        data = yaml.safe_load(f)
+    return data
 
