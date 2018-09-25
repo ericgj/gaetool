@@ -15,6 +15,7 @@ def main():
     
     # init
     init_cmd = init_parser(sub)
+    add_force_args(init_cmd)
     add_common_args(init_cmd)
 
     # service
@@ -45,7 +46,7 @@ def init_parser(root):
     cmd.add_argument('project', help='Google App Engine project ID')
     cmd.add_argument('-e', '--env', action='append',
         default=['development','test','staging','production'],
-        help='Extra environment'
+        help='Extra environments, multiple can be specified'
     )
     cmd.set_defaults(func=init.run)
     return cmd
@@ -56,6 +57,7 @@ def service_parser(root):
 
     # add
     service_add = service_add_parser(sub)
+    add_force_args(service_add)
     add_common_args(service_add)
 
     return cmd
@@ -118,20 +120,23 @@ def deploy_parser(root):
     cmd.set_defaults(func=deploy.run)
     return cmd
 
-def add_common_args(parser):
+def add_force_args(parser):
     parser.add_argument('-f', '--force', dest='force', action='store_true',
         help="Make changes to files if they exist"
     ) 
     parser.add_argument('--no-force', dest='force', action='store_false',
         help="Do not make changes to files if they exist (default)"
     )
+    parser.set_defaults(force=False)
+
+def add_common_args(parser):
     parser.add_argument('-v', '--verbose', dest='verbose', action='store_true',
         help="Verbose output"
     ) 
     parser.add_argument('--no-verbose', dest='verbose', action='store_false',
         help="Normal output (default)"
     )
-    parser.set_defaults(force=False, verbose=False)
+    parser.set_defaults(verbose=False)
 
 
 if __name__ == '__main__':

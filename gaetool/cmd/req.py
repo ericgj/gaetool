@@ -8,7 +8,7 @@ from ._virtualenv import (
 
 def run_install(log, args):
     with log('install', service=args.service):
-        req_create_virtualenv(args.service, force=args.force, log=log)
+        req_create_virtualenv(args.service, log=log)
         if args.uninstall:
             req_uninstall(args.service, log=log)
         req_install(args.service, log=log)
@@ -30,9 +30,9 @@ def req_add(service, reqs, *, log):
         )
 
 
-def req_create_virtualenv(service, *, log, force=False):
+def req_create_virtualenv(service, *, log):
     with log('create virtualenv', service=service):
-        create_virtualenv( service_virtualenv(service), force=force)
+        create_virtualenv( service_virtualenv(service), force=False)
 
 def req_uninstall(service, *, log):
     with log('uninstall existing libraries', service=service):
