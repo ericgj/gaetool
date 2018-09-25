@@ -101,8 +101,8 @@ def environ_var_assigns_nt(env, vars):
 def environ_var_assigns_posix(env, vars):
     project = read_project_id(env)
     return (
-        [ "export %s=%s" % (k,v) for (k,v) in vars.items() ] +
-        [ "export GOOGLE_CLOUD_PROJECT=%s" % (project,) ]
+        [ 'export %s="%s"' % (k,v) for (k,v) in vars.items() ] +
+        [ 'export GOOGLE_CLOUD_PROJECT="%s"' % (project,) ]
     )
 
 def python_test_cmd():
