@@ -59,3 +59,16 @@ gaetool deploy test --service="my-service"
 ```
 
 
+## Other commands
+
+- Template build. This is a more generic build command where you can specify
+the exact source and target directories, file extension of the template files,
+and subdirectory where the templates reside.
+
+The following command is equivalent to the `gaetool build` above:
+
+```bash
+gaetool template development backend/my-service build --file-ext=yaml --template-dir=.
+```
+
+
