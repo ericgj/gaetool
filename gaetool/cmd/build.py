@@ -12,10 +12,9 @@ from ._virtualenv import service_virtualenv, virtualenv_cmd
 BUILD_ROOT = 'build'
 
 def run(log, args):
-    build_dir = BUILD_ROOT if args.build_dir is None else args.build_dir
-    build(args.env, args.service, log=log, build_dir=build_dir)
-    build_lint(log=log, build_dir=build_dir)
-    build_test(args.env, args.service, log=log, build_dir=build_dir)
+    build(args.env, args.service, log=log, build_dir=args.build_dir)
+    build_lint(log=log, build_dir=args.build_dir)
+    build_test(args.env, args.service, log=log, build_dir=args.build_dir)
 
 def build(env, service, *, log, build_dir=BUILD_ROOT):
     with log("build: %s %s" % (env,service), env=env, service=service, build_dir=build_dir):

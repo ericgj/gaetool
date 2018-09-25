@@ -115,6 +115,7 @@ def build_parser(root):
     cmd = root.add_parser('build', description="Build, lint and test service locally")
     cmd.add_argument('env', help='Runtime environment')
     cmd.add_argument('-s', '--service', help='Name of the service', default='default')
+    cmd.add_argument('--build_dir', help='Build (output) directory', default=build.BUILD_ROOT)
     cmd.set_defaults(func=build.run)
     return cmd
 
