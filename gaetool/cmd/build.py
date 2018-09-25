@@ -90,16 +90,19 @@ def run_tests(env, service):
 
 def environ_var_assigns(env):
     vars = read_environ_vars()
-    if os.name == 'nt':
-        return environ_var_assigns_nt(env, vars)
-    else:
-        return environ_var_assigns_posix(env, vars)
-
-def environ_var_assigns_nt(env, vars):
-    return [ "SET %s=%s" % (k,v) for (k,v) in vars.items() ]
-
-def environ_var_assigns_posix(env, vars):
     project = read_project_id(env)
+    if os.name == 'nt':
+        return environ_var_assigns_nt(project, vars)
+    else:
+        return environ_var_assigns_posix(project, vars)
+
+def environ_var_assigns_nt(project, vars):
+    return (
+        [ "SET %s=%s" % (k,v) for (k,v) in vars.items() ] +
+        [ "SET GOOGLE_CLOUD_PROJECT=%s" % (project,) ]
+    )
+
+def environ_var_assigns_posix(project, vars):
     return (
         [ 'export %s="%s"' % (k,v) for (k,v) in vars.items() ] +
         [ 'export GOOGLE_CLOUD_PROJECT="%s"' % (project,) ]
