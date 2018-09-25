@@ -37,16 +37,16 @@ def render_template_file(name, vars, target=None, force=False):
         f.write( pystache.render(tmpl, vars) )
 
 
-def render_templates( source_dir, template_dir, target_dir, extras={} ):
+def render_templates( source_dir, template_dir, target_dir, file_ext='yaml', extras={} ):
     data = load_config(source_dir, extras)
     renderer = Renderer(
         search_dirs=[template_dir], 
-        file_extension='yaml',
+        file_extension=file_ext,
         missing_tags='strict'
     )
     for f in os.listdir(template_dir):
         fname, ext = os.path.splitext(f)
-        if ext == '.yaml' and os.path.isfile(os.path.join(template_dir,f)):
+        if ext == ('.' + file_ext) and os.path.isfile(os.path.join(template_dir,f)):
             with open(os.path.join(target_dir,f), 'w') as o:
                 o.write(renderer.render_name(fname, data))
 

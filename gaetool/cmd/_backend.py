@@ -2,6 +2,8 @@ import os
 import os.path
 import shutil
 
+from ._filesys import copy_files_within
+
 BACKEND_ROOT = 'backend'
 
 def backend_dir(dir):
@@ -26,21 +28,4 @@ def copy_backend_files(service, target, force=False):
     copy_files_within( sourcedir, targetdir, force=force)
 
 
-def copy_files_within(source, dest, force=False):
-    for (root, dirs, files) in os.walk(source):
-        for item in dirs:
-            src_path = os.path.join(root, item)
-            dst_path = os.path.join(dest, src_path.replace(source + '/',''))
-            if not os.path.exists(dst_path):
-                os.mkdir(dst_path)
-
-        for item in files:
-            src_path = os.path.join(root, item)
-            dst_path = os.path.join(dest, src_path.replace(source + '/',''))
-            if os.path.exists(dst_path):
-                if force:
-                    shutil.copy2(src_path, dst_path)
-            else:
-                shutil.copy2(src_path, dst_path)
-        
 

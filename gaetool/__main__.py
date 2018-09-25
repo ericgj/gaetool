@@ -5,7 +5,7 @@ import colorama
 logging.basicConfig(level=logging.INFO)
 colorama.init()  # terminal colors shim for Windows
 
-from .cmd import init, service, build, req, deploy
+from .cmd import init, service, build, template, req, deploy
 from .log import Log
 
 
@@ -26,10 +26,16 @@ def main():
 
     # build
     build_cmd = build_parser(sub)
+    add_build_args(build_cmd)
     add_common_args(build_cmd)
 
+    # template
+    templ_cmd = templ_parser(sub)
+    add_common_args(templ_cmd)
+    
     # deploy
     deploy_cmd = deploy_parser(sub)
+    add_build_args(deploy_cmd)
     add_common_args(deploy_cmd)
 
     args = cmd.parse_args()
@@ -112,6 +118,15 @@ def build_parser(root):
     cmd.set_defaults(func=build.run)
     return cmd
 
+def templ_parser(root):
+    cmd = root.add_parser('template', description="Generic build from templates")
+    cmd.add_argument('env', help='Runtime environment (determines config)')
+    cmd.add_argument('template_dir', help='Source (template) directory')
+    cmd.add_argument('target_dir', help='Target (build) directory')
+    cmd.add_argument('--file-ext', default='yaml', help='File extension of templates')
+    cmd.set_defaults(func=template.run)
+    return cmd
+
 def deploy_parser(root):
     cmd = root.add_parser('deploy', description="Build and deploy service to Google App Engine")
     cmd.add_argument('env', help='Runtime environment (GAE version)')
@@ -128,6 +143,9 @@ def add_force_args(parser):
         help="Do not make changes to files if they exist (default)"
     )
     parser.set_defaults(force=False)
+
+def add_build_args(parser):
+    parser.add_argument('--build-dir', help='Build (output) directory')
 
 def add_common_args(parser):
     parser.add_argument('-v', '--verbose', dest='verbose', action='store_true',
