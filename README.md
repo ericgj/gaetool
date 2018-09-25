@@ -18,43 +18,44 @@ virtualenv .env
 2. Install the library:
 
 ```bash
-pip install gae-python3-tooling
+pip install gaetool
 ```
+(or add it to your requirements.txt, etc.)
 
-3. Initialize:
+3. Initialize and create a default service:
 
 ```bash
-gae init my-gae-project-id
+gaetool init my-gae-project-id
 ```
 
 4. Initialize a new service:
 
 ```bash
-gae service add my-service
+gaetool service add my-service
 ```
 
-5. Specify requirements:
+5. Specify requirements for multiple services:
 
 ```bash
-gae req add --service="my-service" --service="my-other-service" WebOb pytz
+gaetool req add --service="my-service" --service="my-other-service" WebOb pytz
 ```
 
-6. Install (and freeze) requirements:
+6. Install and freeze requirements:
 
 ```bash
-gae req install --service="my-service" 
+gaetool req install --service="my-service" 
 ```
 
-7. Build (and lint and test) a service for a given environment:
+7. Build, lint and test a service for a given environment:
 
 ```bash
-gae build development --service="my-service"
+gaetool build development --service="my-service"
 ```
 
 8. Build and deploy a service for a given environment:
 
 ```bash
-gae deploy test --service="my-service"
+gaetool deploy test --service="my-service"
 ```
 
 
