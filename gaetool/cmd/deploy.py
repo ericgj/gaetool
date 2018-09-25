@@ -8,7 +8,7 @@ def run(log, args):
     with log('deploy', env=args.env, service=args.service):
         build(env='development', service=args.service, log=log)
         build_lint(log=log)
-        build_test(args.service, log=log)
+        build_test(args.env, args.service, log=log)
 
         build(env=args.env, service=args.service, log=log)
         deploy(args.env, args.service, config=args.config, log=log)
