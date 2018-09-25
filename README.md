@@ -10,35 +10,51 @@ environments on Google App Engine.
 
 1. Set up and activate a virtualenv for development if you haven't already:
 
-    virtualenv .env
-    .env/bin/activate
+```bash
+virtualenv .env
+.env/bin/activate
+```
 
 2. Install the library:
 
-    pip install gae-python3-tooling
+```bash
+pip install gae-python3-tooling
+```
 
 3. Initialize:
 
-    gae init my-gae-project-id
+```bash
+gae init my-gae-project-id
+```
 
 4. Initialize a new service:
 
-    gae service add my-service
+```bash
+gae service add my-service
+```
 
 5. Specify requirements:
 
-    gae req add --service="my-service" --service="my-other-service" WebOb pytz
+```bash
+gae req add --service="my-service" --service="my-other-service" WebOb pytz
+```
 
-6. Update (and freeze) requirements:
+6. Install (and freeze) requirements:
 
-    gae req install --service="my-service" 
+```bash
+gae req install --service="my-service" 
+```
 
-7. Build (and lint and test) a service:
+7. Build (and lint and test) a service for a given environment:
 
-    gae build development --service="my-service"
+```bash
+gae build development --service="my-service"
+```
 
-8. Deploy (build first) a service:
+8. Build and deploy a service for a given environment:
 
-    gae deploy test --service="my-service"
+```bash
+gae deploy test --service="my-service"
+```
 
 
