@@ -162,6 +162,7 @@ def storage_parser(root):
 def storage_setup_parser(root):
     cmd = root.add_parser('setup', description="Set up Google Storage bucket")
     cmd.add_argument('env', help='Runtime environment (GAE version)')
+    cmd.add_argument('-s', '--service', dest='service', help='Name of the service', default='default')
     cmd.add_argument('-g', '--group', dest='group', help='Group entity read access to bucket')
     cmd.add_argument('--config', dest='config', default='static', help='Local config file to update')
     cmd.set_defaults(func=storage.run_setup)
