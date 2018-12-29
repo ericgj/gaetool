@@ -5,7 +5,7 @@ import colorama
 logging.basicConfig(level=logging.INFO)
 colorama.init()  # terminal colors shim for Windows
 
-from .cmd import init, service, build, template, req, deploy
+from .cmd import init, service, build, template, req, deploy, storage
 from .log import Log
 
 
@@ -37,6 +37,9 @@ def main():
     deploy_cmd = deploy_parser(sub)
     add_build_args(deploy_cmd)
     add_common_args(deploy_cmd)
+
+    # storage
+    storage_parser(sub)
 
     args = cmd.parse_args()
     if args.verbose == True:
@@ -140,6 +143,38 @@ def deploy_parser(root):
     cmd.add_argument('-c', '--config', help='Config (yaml) files to deploy', default='*.yaml')
     cmd.set_defaults(func=deploy.run)
     return cmd
+
+def storage_parser(root):
+    cmd = root.add_parser('storage')
+    sub = cmd.add_subparsers(help='manage static files on Google Storage')
+
+    # setup
+    storage_setup = storage_setup_parser(sub)
+    add_force_args(storage_setup)
+    add_common_args(storage_setup)
+
+    # sync
+    storage_sync = storage_sync_parser(sub)
+    add_common_args(storage_sync)
+
+    return cmd
+
+def storage_setup_parser(root):
+    cmd = root.add_parser('setup', description="Set up Google Storage bucket")
+    cmd.add_argument('env', help='Runtime environment (GAE version)')
+    cmd.add_argument('-g', '--group', dest='group', help='Group entity read access to bucket')
+    cmd.add_argument('--config', dest='config', default='static', help='Local config file to update')
+    cmd.set_defaults(func=storage.run_setup)
+    return cmd
+
+def storage_sync_parser(root):
+    cmd = root.add_parser('sync', description="Sync Google Storage bucket")
+    cmd.add_argument('env', help='Runtime environment (GAE version)')
+    cmd.add_argument('-s', '--service', dest='service', help='Name of the service', default='default')
+    cmd.add_argument('--source', dest='source', help='Source directory or URL', default='static')
+    cmd.set_defaults(func=storage.run_sync)
+    return cmd
+
 
 def add_force_args(parser):
     parser.add_argument('-f', '--force', dest='force', action='store_true',

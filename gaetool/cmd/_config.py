@@ -32,6 +32,9 @@ def update_config_yaml(env, name, key, value):
     with open(fname, 'w') as f:
         f.write(yaml.dump(data))
 
+def write_config_yaml(env, name, data, force=False):
+    write_config(env, name, yaml.dump(data), force=force)
+
 def write_config(env, name, value, force=False):
     fname = config_file(env, name)
     if not force and os.path.isfile(fname):
