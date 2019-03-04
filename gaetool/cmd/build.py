@@ -120,7 +120,7 @@ def python_test_cmd_unittest(build_dir):
         return python_test_cmd(build_dir, "python -m unittest test/test_* --buffer")
 
 def python_test_cmd_pytest(build_dir):
-    return python_test_cmd(build_dir, "pytest test/")
+    return python_test_cmd(build_dir, "python -m pytest test/")
 
 
 def python_test_cmd(build_dir, testcmd):
