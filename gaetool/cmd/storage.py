@@ -15,7 +15,9 @@ def run_setup(log, args):
 def run_sync(log, args):
     with log('sync'):
         project = read_project_id(args.env)
-        run_storage_sync(args.env, project, service=args.service, source=args.source, log=log) 
+        run_storage_sync(args.env, project, service=args.service, source=args.source, 
+            cache=args.cache, log=log
+        ) 
         
 
 def run_make_bucket(env, project, *, log):
@@ -40,12 +42,13 @@ def run_gen_config_static(env, project, *, service, config_file, log, force):
         write_config_yaml(env, config_file, data, force=force)  
 
 
-def run_storage_sync(env, project, *, service, source, log):
+def run_storage_sync(env, project, *, service, source, log, cache=False):
     with log('sync: %s %s' % (env,service), env=env, service=service):
         gsutil_rsync( 
             bucket_name(env,project),
             service, 
-            os.path.join(source,service) 
+            os.path.join(source,service),
+            cache=cache
         ) 
 
 
@@ -64,10 +67,11 @@ def gsutil_defacl( bucket, group ):
 
     subprocess.run(cmd, shell=True, check=True)
     
-def gsutil_rsync( bucket, path, source ):
+def gsutil_rsync( bucket, path, source, cache=False ):
+    hdrs = '-h "Cache-Control:no-cache, must-revalidate"' if not cache else ''
     cmd = """
-        gsutil rsync -d -r "{source}" "gs://{bucket}/{path}"
-    """.strip().format( bucket=bucket, path=path, source=source )
+        gsutil {headers} rsync -d -r "{source}" "gs://{bucket}/{path}"
+    """.strip().format( headers=hdrs, bucket=bucket, path=path, source=source )
 
     subprocess.run(cmd, shell=True, check=True)
 

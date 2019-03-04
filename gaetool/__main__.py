@@ -162,18 +162,27 @@ def storage_parser(root):
 def storage_setup_parser(root):
     cmd = root.add_parser('setup', description="Set up Google Storage bucket")
     cmd.add_argument('env', help='Runtime environment (GAE version)')
-    cmd.add_argument('-s', '--service', dest='service', help='Name of the service', default='default')
-    cmd.add_argument('-g', '--group', dest='group', help='Group entity read access to bucket')
-    cmd.add_argument('--config', dest='config', default='static', help='Local config file to update')
+    cmd.add_argument('-s', '--service', dest='service', 
+        help='Name of the service', default='default')
+    cmd.add_argument('-g', '--group', dest='group', 
+        help='Group entity read access to bucket')
+    cmd.add_argument('--config', dest='config', default='static', 
+        help='Local config file to update')
     cmd.set_defaults(func=storage.run_setup)
     return cmd
 
 def storage_sync_parser(root):
     cmd = root.add_parser('sync', description="Sync Google Storage bucket")
     cmd.add_argument('env', help='Runtime environment (GAE version)')
-    cmd.add_argument('-s', '--service', dest='service', help='Name of the service', default='default')
-    cmd.add_argument('--source', dest='source', help='Source directory or URL', default='static')
-    cmd.set_defaults(func=storage.run_sync)
+    cmd.add_argument('-s', '--service', dest='service', 
+        help='Name of the service', default='default')
+    cmd.add_argument('--source', dest='source', 
+        help='Source directory or URL', default='static')
+    cmd.add_argument('--cache', dest='cache', action='store_true',
+        help='Use default Google Storage caching')
+    cmd.add_argument('--no-cache', dest='cache', action='store_false',
+        help='Turn off Google Storage caching (default)')
+    cmd.set_defaults(cache=False, func=storage.run_sync)
     return cmd
 
 
