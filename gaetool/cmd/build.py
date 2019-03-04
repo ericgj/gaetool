@@ -14,7 +14,9 @@ BUILD_ROOT = 'build'
 def run(log, args):
     build(args.env, args.service, log=log, build_dir=args.build_dir)
     build_lint(log=log, build_dir=args.build_dir)
-    build_test(args.env, args.service, log=log, build_dir=args.build_dir)
+    build_test(args.env, args.service, 
+        test_runner=args.test_runner, log=log, build_dir=args.build_dir
+    )
 
 def build(env, service, *, log, build_dir=BUILD_ROOT):
     with log("build: %s %s" % (env,service), env=env, service=service, build_dir=build_dir):
@@ -53,9 +55,9 @@ def build_lint(*, log, build_dir=BUILD_ROOT):
     with log("linting"):
         run_lint(build_dir=build_dir)
 
-def build_test(env, service, *, log, build_dir=BUILD_ROOT):
+def build_test(env, service, *, test_runner, log, build_dir=BUILD_ROOT):
     with log("testing", env=env, service=service):
-        run_tests(env, service, build_dir=build_dir)
+        run_tests(env, service, test_runner=test_runner, build_dir=build_dir)
 
 
 # Implementation
@@ -72,12 +74,19 @@ def run_lint(*, build_dir):
             e.stdout.decode('utf-8')
         )
 
-def run_tests(env, service, *, build_dir):
+def run_tests(env, service, *, test_runner, build_dir):
+    if test_runner == 'unittest':
+        testcmd = python_test_cmd_unittest(build_dir)
+    elif test_runner == 'pytest':
+        testcmd = python_test_cmd_pytest(build_dir)
+    else:
+        testcmd = python_test_cmd(build_dir, test_runner)
+
     subprocess.run( 
         " && ".join( 
             [ virtualenv_cmd(service_virtualenv(service)) ] + 
             environ_var_assigns(env, build_dir=build_dir) +
-            python_test_cmd(build_dir=build_dir) 
+            testcmd
         ), 
         shell=True, check=True
     )
@@ -103,11 +112,20 @@ def environ_var_assigns_posix(project, vars):
         [ 'export GOOGLE_CLOUD_PROJECT="%s"' % (project,) ]
     )
 
-def python_test_cmd(build_dir):
+
+def python_test_cmd_unittest(build_dir):
     if os.name == 'nt':
-        return [ "cd %s" % (build_dir,), "python -m unittest test\\test_* --buffer" ]
+        return python_test_cmd(build_dir, "python -m unittest test\\test_* --buffer")
     else:
-        return [ "cd %s" % (build_dir,), "python -m unittest test/test_* --buffer" ]
+        return python_test_cmd(build_dir, "python -m unittest test/test_* --buffer")
+
+def python_test_cmd_pytest(build_dir):
+    return python_test_cmd(build_dir, "pytest test/")
+
+
+def python_test_cmd(build_dir, testcmd):
+    return [ "cd %s" % (build_dir,), testcmd ]
+
 
 
 def read_environ_vars(build_dir):

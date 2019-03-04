@@ -197,6 +197,9 @@ def add_force_args(parser):
 
 def add_build_args(parser):
     parser.add_argument('--build-dir', help='Build (output) directory')
+    parser.add_argument('-t', '--test-runner', help='Test runner or command')
+    parser.set_defaults(test_runner='unittest')
+
 
 def add_common_args(parser):
     parser.add_argument('-v', '--verbose', dest='verbose', action='store_true',

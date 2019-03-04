@@ -1,5 +1,5 @@
 include README.md
 include setup.py
 
-recursive-include gaetool/template
+graft gaetool/template
 

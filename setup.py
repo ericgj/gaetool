@@ -33,7 +33,7 @@ setup(
     description="Development tooling and deployment rig for Python 3.x standard and flex environments on Google App Engine.",
     long_description=get_long_description(),
     long_description_content_type="text/markdown",
-    packages=[ "gaetool" ],
+    packages=[ "gaetool", "gaetool/cmd", "gaetool/template" ],
     include_package_data=True,
     python_requires=">=3.5",
     install_requires=REQUIREMENTS,
