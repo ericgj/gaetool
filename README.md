@@ -67,7 +67,8 @@ This is a more generic build command where you can specify the exact source
 and target directories, file extension of the template files, and subdirectory
 where the templates reside.
 
-The following command is equivalent to the `gaetool build` above:
+The following command is equivalent to the `gaetool build` above (but without
+the lint and test steps):
 
 ```bash
 gaetool template development backend/my-service build --file-ext=yaml --template-dir=.
@@ -77,4 +78,17 @@ This can be useful for frontend or other client builds that need to access the
 same config as the backend, for instance.
 
 
+### build --exec
+
+After building, you can run an arbitrary command within the built environment:
+that is, with all the environment variables set and activating the service-
+specific python virtual environment. 
+
+```bash
+gaetool build test --exec="bin/seed-datastore" 
+```
+
+This is useful for things that need a runtime environment similar to the
+deployed environment, such as seeding a data store, or running the app inside
+a local web server, etc.
 
