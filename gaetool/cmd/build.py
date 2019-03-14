@@ -66,7 +66,7 @@ def build_test(env, service, *, test_runner, log, build_dir=BUILD_ROOT):
 
 def build_exec(env, service, cmd, *, log, build_dir=BUILD_ROOT):
     with log("executing", env=env, service=service):
-        run_in_environ(env, service, [cmd], build_dir=build_dir)
+        run_in_environ(env, service, cmd_in_build(build_dir, cmd), build_dir=build_dir)
 
 
 # Implementation
@@ -89,7 +89,7 @@ def run_tests(env, service, *, test_runner, build_dir):
     elif test_runner == 'pytest':
         cmd = python_test_cmd_pytest(build_dir)
     else:
-        cmd = python_test_cmd(build_dir, test_runner)
+        cmd = cmd_in_build(build_dir, test_runner)
 
     run_in_environ(env, service, cmd, build_dir=build_dir)
 
@@ -128,15 +128,18 @@ def environ_var_assigns_posix(project, vars):
 
 def python_test_cmd_unittest(build_dir):
     if os.name == 'nt':
-        return python_test_cmd(build_dir, "python -m unittest test\\test_* --buffer")
+        return cmd_in_build(build_dir, "python -m unittest test\\test_* --buffer")
     else:
-        return python_test_cmd(build_dir, "python -m unittest test/test_* --buffer")
+        return cmd_in_build(build_dir, "python -m unittest test/test_* --buffer")
 
 def python_test_cmd_pytest(build_dir):
-    return python_test_cmd(build_dir, "python -m pytest test/")
+    if os.name == 'nt':
+        return cmd_in_build(build_dir, "python -m pytest test\\")
+    else:
+        return cmd_in_build(build_dir, "python -m pytest test/")
 
 
-def python_test_cmd(build_dir, testcmd):
+def cmd_in_build(build_dir, testcmd):
     return [ "cd %s" % (build_dir,), testcmd ]
 
 
