@@ -98,31 +98,35 @@ def run_in_environ(env, service, cmd, *, build_dir):
     subprocess.run( 
         " && ".join( 
             [ virtualenv_cmd(service_virtualenv(service)) ] + 
-            environ_var_assigns(env, build_dir=build_dir) +
+            environ_var_assigns(env, service, build_dir=build_dir) +
             cmd
         ), 
         shell=True, check=True
     )
 
 
-def environ_var_assigns(env, *, build_dir):
+def environ_var_assigns(env, service, *, build_dir):
     vars = read_environ_vars(build_dir)
     project = read_project_id(env)
     if os.name == 'nt':
-        return environ_var_assigns_nt(project, vars)
+        return environ_var_assigns_nt(env, service, project, vars)
     else:
-        return environ_var_assigns_posix(project, vars)
+        return environ_var_assigns_posix(env, service, project, vars)
 
-def environ_var_assigns_nt(project, vars):
+def environ_var_assigns_nt(env, service, project, vars):
     return (
         [ "SET %s=%s" % (k,v) for (k,v) in vars.items() ] +
-        [ "SET GOOGLE_CLOUD_PROJECT=%s" % (project,) ]
+        [ "SET GOOGLE_CLOUD_PROJECT=%s" % (project,) ] +
+        [ "SET GAE_SERVICE=%s" % (service,) ] +
+        [ "SET GAE_VERSION=%s" % (env,) ]
     )
 
-def environ_var_assigns_posix(project, vars):
+def environ_var_assigns_posix(env, service, project, vars):
     return (
         [ 'export %s="%s"' % (k,v) for (k,v) in vars.items() ] +
-        [ 'export GOOGLE_CLOUD_PROJECT="%s"' % (project,) ]
+        [ 'export GOOGLE_CLOUD_PROJECT="%s"' % (project,) ] +
+        [ 'export GAE_SERVICE="%s"' % (service,) ] +
+        [ 'export GAE_VERSION="%s"' % (env,) ]
     )
 
 
