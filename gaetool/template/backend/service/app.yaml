@@ -3,6 +3,10 @@ entrypoint: "gunicorn -b :$PORT main:app"
 service: {{service}}
 
 handlers:
+  - url: /robots.txt
+    static_files: common/static/robots.txt
+    upload: common/static/robots.txt
+
   - url: /.*
     secure: always
     script: auto
