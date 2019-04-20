@@ -1,35 +1,25 @@
-import os
 import os.path
-import subprocess
-import ruamel.yaml as yaml
 
 from ._filesys import remove_and_create_dir
-from ._config import config_dir, copy_config_files, read_project_id
+from ._config import config_dir, copy_config_files
 from ._backend import backend_dir, copy_backend_dir, copy_backend_files
 from ._template import render_templates
-from ._virtualenv import service_virtualenv, virtualenv_cmd
+from ._environ import write_environ_vars
 
 BUILD_ROOT = 'build'
+ENV_FILE = 'env.json'
 
 def run(log, args):
-    build(args.env, args.service, log=log, build_dir=args.build_dir)
-    build_lint(log=log, build_dir=args.build_dir)
-    if args.test:
-        build_test(args.env, args.service, 
-          test_runner=args.test_runner, log=log, build_dir=args.build_dir
-        )
-    if not args.exec is None:
-        build_exec(args.env, args.service, args.exec, 
-            log=log, build_dir=args.build_dir
-        )
+    build(args.env, args.service, log=log, build_dir=args.build_dir, env_file=args.env_file)
 
-def build(env, service, *, log, build_dir=BUILD_ROOT):
+def build(env, service, *, log, build_dir=BUILD_ROOT, env_file=ENV_FILE):
     with log("build: %s %s" % (env,service), env=env, service=service, build_dir=build_dir):
         build_clear_build(log=log, build_dir=build_dir)
         build_copy_config(env, log=log, build_dir=build_dir)
         build_copy_backend_common(log=log, build_dir=build_dir)
         build_copy_backend_service(service, log=log, build_dir=build_dir)
         build_backend_templates(env, service, log=log, build_dir=build_dir)
+        build_env_file(env, service, log=log, build_dir=build_dir, env_file=env_file)
 
 def build_clear_build(*, log, build_dir=BUILD_ROOT):
     with log("clear build"):
@@ -56,33 +46,14 @@ def build_backend_templates(env, service, *, log, build_dir=BUILD_ROOT):
             extras={ 'environment': env, 'service': service }
         )
 
-def build_lint(*, log, build_dir=BUILD_ROOT):
-    with log("linting"):
-        run_lint(build_dir=build_dir)
-
-def build_test(env, service, *, test_runner, log, build_dir=BUILD_ROOT):
-    with log("testing", env=env, service=service):
-        run_tests(env, service, test_runner=test_runner, build_dir=build_dir)
-
-def build_exec(env, service, cmd, *, log, build_dir=BUILD_ROOT):
-    with log("executing", env=env, service=service):
-        run_in_environ(env, service, cmd_in_build(build_dir, cmd), build_dir=build_dir)
+def build_env_file(env, service, *, log, build_dir=BUILD_ROOT, env_file=ENV_FILE):
+    with log("create env file", env=env, service=service):
+        write_environ_vars(env, service, build_dir=build_dir, env_file=env_file)
 
 
 # Implementation
 
-def run_lint(*, build_dir):
-    try:
-        subprocess.run(['flake8', build_dir],
-            stderr=subprocess.PIPE, stdout=subprocess.PIPE, check=True 
-        )
-    except subprocess.CalledProcessError as e:
-        raise Exception(
-            "Lint error(s) (flake8):\n" + 
-            e.stderr.decode('utf-8') + "\n" +
-            e.stdout.decode('utf-8')
-        )
-
+"""
 def run_tests(env, service, *, test_runner, build_dir):
     if test_runner == 'unittest':
         cmd = python_test_cmd_unittest(build_dir)
@@ -105,30 +76,6 @@ def run_in_environ(env, service, cmd, *, build_dir):
     )
 
 
-def environ_var_assigns(env, service, *, build_dir):
-    vars = read_environ_vars(build_dir)
-    project = read_project_id(env)
-    if os.name == 'nt':
-        return environ_var_assigns_nt(env, service, project, vars)
-    else:
-        return environ_var_assigns_posix(env, service, project, vars)
-
-def environ_var_assigns_nt(env, service, project, vars):
-    return (
-        [ "SET %s=%s" % (k,v) for (k,v) in vars.items() ] +
-        [ "SET GOOGLE_CLOUD_PROJECT=%s" % (project,) ] +
-        [ "SET GAE_SERVICE=%s" % (service,) ] +
-        [ "SET GAE_VERSION=%s" % (env,) ]
-    )
-
-def environ_var_assigns_posix(env, service, project, vars):
-    return (
-        [ 'export %s="%s"' % (k,v) for (k,v) in vars.items() ] +
-        [ 'export GOOGLE_CLOUD_PROJECT="%s"' % (project,) ] +
-        [ 'export GAE_SERVICE="%s"' % (service,) ] +
-        [ 'export GAE_VERSION="%s"' % (env,) ]
-    )
-
 
 def python_test_cmd_unittest(build_dir):
     if os.name == 'nt':
@@ -143,18 +90,5 @@ def python_test_cmd_pytest(build_dir):
         return cmd_in_build(build_dir, "python -m pytest test/")
 
 
-def cmd_in_build(build_dir, testcmd):
-    return [ "cd %s" % (build_dir,), testcmd ]
-
-
-
-def read_environ_vars(build_dir):
-    data = read_yaml( os.path.join(build_dir,'app.yaml') )
-    return data.get('env_variables',{})
-
-def read_yaml(fname):
-    data = None
-    with open(fname, 'r') as f:
-        data = yaml.safe_load(f)
-    return data
+"""
 

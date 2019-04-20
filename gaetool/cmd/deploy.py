@@ -2,15 +2,20 @@ import os
 import subprocess
 
 from ._config import read_project_id
-from .build import build, build_lint
+from ._environ import check_environ_vars
 
 def run(log, args):
+    deploy_check_environ( args.env, args.service, 
+        log=log, build_dir=args.build_dir, env_file=args.env_file
+    ) 
     with log('deploy', env=args.env, service=args.service):
-        build(env=args.env, service=args.service, log=log)
-        build_lint(log=log, build_dir=args.build_dir)
         deploy(args.env, args.service, config=args.config, build_dir=args.build_dir, log=log)
 
-def deploy(env, service, *, log, config="*.yaml", build_dir="build"):
+def deploy_check_environ(env, service, *, log, build_dir, env_file):
+    with log('checking environment', env=env, service=service):
+        return check_environ_vars(env, service, build_dir=build_dir, env_file=env_file)
+
+def deploy(env, service, *, log, build_dir, config="*.yaml"):
     with log('app deploy: %s %s' % (env,service), env=env, service=service):
         gcloud_app_deploy( read_project_id(env), env, config, build_dir )
 
