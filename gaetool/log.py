@@ -1,8 +1,9 @@
+import sys
 from logging import DEBUG, INFO, ERROR
 from datetime import datetime
 from blessings import Terminal
 
-T = Terminal()
+T = Terminal(stream=sys.stderr)
 
 class Log():
 
@@ -31,7 +32,7 @@ class LogContext():
                 args=", ".join([ "%s=%s" % (k,v) for k,v in self._args.items() ]),
                 t=T,
                 timestamp=datetime.now()
-            ))
+            ), file=sys.stderr)
 
         if self.level <= INFO:
             fmt = (
@@ -42,7 +43,7 @@ class LogContext():
                 msg=self._msg, 
                 t=T,
                 timestamp=datetime.now()
-            ))
+            ), file=sys.stderr)
             
 
     def __exit__(self, exc_type, exc_val, exc_tb):
@@ -56,7 +57,7 @@ class LogContext():
                     msg=self._msg,
                     t=T,
                     timestamp=datetime.now()
-                ))
+                ), file=sys.stderr)
 
             return True
 
@@ -70,7 +71,7 @@ class LogContext():
                     msg=self._msg,
                     t=T,
                     timestamp=datetime.now()
-                ))
+                ), file=sys.stderr)
 
             return False
 
