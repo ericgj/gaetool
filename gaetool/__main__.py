@@ -5,9 +5,8 @@ import colorama
 logging.basicConfig(level=logging.INFO)
 colorama.init()  # terminal colors shim for Windows
 
-from .cmd import init, service, build, template, req, deploy, storage
+from .cmd import init, service, build, template, exec, req, deploy, storage
 from .log import Log
-
 
 def main():
     cmd = ArgumentParser(description='Deployment tools for Python Google App Engine projects')
@@ -33,6 +32,11 @@ def main():
     templ_cmd = templ_parser(sub)
     add_common_args(templ_cmd)
     
+    # exec
+    exec_cmd = exec_parser(sub)
+    add_build_args(exec_cmd)
+    add_common_args(exec_cmd)
+
     # deploy
     deploy_cmd = deploy_parser(sub)
     add_build_args(deploy_cmd)
@@ -118,11 +122,7 @@ def build_parser(root):
     cmd = root.add_parser('build', description="Build, lint and test service locally")
     cmd.add_argument('env', help='Runtime environment')
     cmd.add_argument('-s', '--service', help='Name of the service', default='default')
-    cmd.add_argument('--build_dir', help='Build (output) directory', default=build.BUILD_ROOT)
-    cmd.add_argument('--no-test', dest='test', action='store_false', help="Skip running tests") 
-    cmd.add_argument('-t', '--test-runner', help='Test runner or command')
-    cmd.add_argument('-x', '--exec', help='Command to execute in built environment')
-    cmd.set_defaults(test=True, test_runner='unittest', func=build.run)
+    cmd.set_defaults(func=build.run)
     return cmd
 
 def templ_parser(root):
@@ -137,6 +137,14 @@ def templ_parser(root):
         help='File extension of templates (default: yaml)'
     )
     cmd.set_defaults(func=template.run)
+    return cmd
+
+def exec_parser(root):
+    cmd = root.add_parser('exec', description="Execute command(s) in built environment")
+    cmd.add_argument('env', help='Runtime environment')
+    cmd.add_argument('-s', '--service', help='Name of the service', default='default')
+    cmd.add_argument('cmds', nargs='+', help='Command(s) to execute in built environment')
+    cmd.set_defaults(func=exec.run)
     return cmd
 
 def deploy_parser(root):
@@ -199,7 +207,8 @@ def add_force_args(parser):
     parser.set_defaults(force=False)
 
 def add_build_args(parser):
-    parser.add_argument('--build-dir', help='Build (output) directory')
+    parser.add_argument('--build-dir', help='Build (output) directory', default=build.BUILD_ROOT)
+    parser.add_argument('--env-file', help='Environment var file', default=build.ENV_FILE)
 
 
 def add_common_args(parser):
