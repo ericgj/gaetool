@@ -56,7 +56,7 @@ gaetool build --service="my-service" development
 
 ```bash
 gaetool exec --service="my-service" development "python -m pytest"
-
+```
 
 9. Deploy a service for a given environment:
 
