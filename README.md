@@ -46,17 +46,30 @@ gaetool req add --service="my-service" --service="my-other-service" WebOb pytz
 gaetool req install --service="my-service" 
 ```
 
-7. Build, lint and test a service for a given environment:
+7. Build a service for a given environment:
 
 ```bash
-gaetool build development --service="my-service"
+gaetool build --service="my-service" development
 ```
 
-8. Build and deploy a service for a given environment:
+8. Run tests on the build:
 
 ```bash
-gaetool deploy test --service="my-service"
+gaetool exec --service="my-service" development "python -m pytest"
+
+
+9. Deploy a service for a given environment:
+
+```bash
+gaetool build --service="my-service" test
+gaetool deploy --service="my-service" test
 ```
+
+Note that as of version 0.2.1, linting and testing and command execution have
+been taken out of the `build` and `deploy` commands. Having "de-bundled" 
+commands makes it easier to construct build pipelines however you see fit. At
+the same time, the tool will prevent you from executing a command or deploying 
+the app if the specified environment or service doesn't match the build.
 
 
 ## Other commands
@@ -77,18 +90,4 @@ gaetool template development backend/my-service build --file-ext=yaml --template
 This can be useful for frontend or other client builds that need to access the 
 same config as the backend, for instance.
 
-
-### build --exec
-
-After building, you can run an arbitrary command within the built environment:
-that is, with all the environment variables set and activating the service-
-specific python virtual environment. 
-
-```bash
-gaetool build test --exec="bin/seed-datastore" 
-```
-
-This is useful for things that need a runtime environment similar to the
-deployed environment, such as seeding a data store, or running the app inside
-a local web server, etc.
 
