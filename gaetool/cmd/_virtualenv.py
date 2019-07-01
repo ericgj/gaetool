@@ -1,3 +1,4 @@
+import os
 import os.path
 import subprocess
 import tempfile
@@ -52,21 +53,27 @@ def freeze_virtualenv(name, reqfile):
 
 
 def run_in_virtualenv(name, cmds, *, env={}, cwd=None):
+    if 'SYSTEMROOT' in os.environ:
+        env['SYSTEMROOT'] = os.environ['SYSTEMROOT']   # Note: Windows needs
+
     subprocess.run( 
         " && ".join( 
             [ virtualenv_cmd(name) ] + 
-            [ 'cd "%s"' % (cwd,) ] + 
+            ( [] if cwd is None else [ 'cd "%s"' % (cwd,) ] ) + 
             cmds
         ), 
         shell=True, check=True, env=env
     )
 
 def run_in_virtualenv_quiet(name, cmds, *, env={}, cwd=None):
+    if 'SYSTEMROOT' in os.environ:
+        env['SYSTEMROOT'] = os.environ['SYSTEMROOT']   # Note: Windows needs
+
     try:
         subprocess.run(
             ' && '.join(
                 [ virtualenv_cmd(name) ] + 
-                [ 'cd "%s"' % (cwd,) ] + 
+                ( [] if cwd is None else [ 'cd "%s"' % (cwd,) ] ) + 
                 cmds 
             ),
             shell=True, check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE,

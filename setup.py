@@ -15,8 +15,8 @@ def get_long_description():
     return ret
 
 REQUIREMENTS = [
-    "blessings>=1.7,<2.0",
-    "colorama>=0.3,<0.4",
+    "blessings>=1.7,<2.0;platform_system=='Linux'",
+    "colorama>=0.3,<0.4;platform_system=='Linux'",
     "pystache>=0.5,<0.6",
     "ruamel.yaml>=0.15,<0.16"
 ]

@@ -1,9 +1,14 @@
 import logging
 from argparse import ArgumentParser
-import colorama
+
+try:
+    import colorama
+    colorama.init()  # terminal colors shim for Windows... 
+                     # except blessings doesn't work with Windows, so this is kind of pointless
+except:
+    pass
 
 logging.basicConfig(level=logging.INFO)
-colorama.init()  # terminal colors shim for Windows
 
 from .cmd import init, service, build, template, exec, req, deploy, storage
 from .log import Log

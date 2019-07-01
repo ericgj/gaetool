@@ -1,9 +1,16 @@
 import sys
 from logging import DEBUG, INFO, ERROR
 from datetime import datetime
-from blessings import Terminal
 
-T = Terminal(stream=sys.stderr)
+class FakeTerminal():
+    does_styling = False
+
+try:
+    from blessings import Terminal
+    T = Terminal(stream=sys.stderr)
+except:
+    T = FakeTerminal()
+
 
 class Log():
 
@@ -25,7 +32,7 @@ class LogContext():
         if self.level <= DEBUG:
             fmt = (
                 "{t.yellow}•{t.normal} {msg} ({args})" if T.does_styling else
-                "{timestamp:%Y-%m-%dT%H:%M:%S} • {msg} ({args})"
+                "{timestamp:%Y-%m-%dT%H:%M:%S}   {msg} ({args})"
             )
             print( fmt.format(
                 msg=self._msg, 
@@ -37,7 +44,7 @@ class LogContext():
         if self.level <= INFO:
             fmt = (
                 "{t.yellow}•{t.normal} {msg}{t.move_up}" if T.does_styling else
-                "{timestamp:%Y-%m-%dT%H:%M:%S} • {msg}"
+                "{timestamp:%Y-%m-%dT%H:%M:%S}   {msg}"
             )
             print( fmt.format(
                 msg=self._msg, 
@@ -51,7 +58,7 @@ class LogContext():
             if self.level <= INFO:
                 fmt = (
                     "{t.green}✓ {msg}{t.normal}" if T.does_styling else
-                    "{timestamp:%Y-%m-%dT%H:%M:%S} ✓ {msg}"
+                    "{timestamp:%Y-%m-%dT%H:%M:%S} = {msg}"
                 )
                 print( fmt.format(
                     msg=self._msg,
@@ -65,7 +72,7 @@ class LogContext():
             if self.level <= ERROR:
                 fmt = (
                     "{t.red}✕ {msg}{t.normal}" if T.does_styling else
-                    "{timestamp:%Y-%m-%dT%H:%M:%S} ✕ {msg}"
+                    "{timestamp:%Y-%m-%dT%H:%M:%S} X {msg}"
                 )
                 print( fmt.format(
                     msg=self._msg,

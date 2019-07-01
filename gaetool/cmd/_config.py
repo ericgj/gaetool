@@ -65,13 +65,13 @@ def copy_files_within(source, dest, force=False):
     for (root, dirs, files) in os.walk(source):
         for item in dirs:
             src_path = os.path.join(root, item)
-            dst_path = os.path.join(dest, src_path.replace(source + '/',''))
+            dst_path = os.path.join(dest, src_path.replace(source + os.sep,''))
             if not os.path.exists(dst_path):
-                os.mkdir(dst_path)
+                os.makedirs(dst_path)
 
         for item in files:
             src_path = os.path.join(root, item)
-            dst_path = os.path.join(dest, src_path.replace(source + '/',''))
+            dst_path = os.path.join(dest, src_path.replace(source + os.sep,''))
             if os.path.exists(dst_path):
                 if force:
                     shutil.copy2(src_path, dst_path)
