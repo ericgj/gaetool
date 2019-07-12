@@ -1,3 +1,4 @@
+import sys
 import os.path
 import json
 from ruamel.yaml import YAML
@@ -11,6 +12,8 @@ def write_environ_vars(env, service, *, build_dir, env_file):
     Note: written as JSON, not YAML, so GAE doesn't think it's a config
     file during deployment.
     """
+    if not os.path.exists( os.path.join(build_dir,'app.yaml') ):
+        return
     vars = fetch_environ_vars(env, service, build_dir=build_dir)
     with open(os.path.join(build_dir, env_file), 'w') as f:
         json.dump(vars, f)
@@ -22,6 +25,10 @@ def check_environ_vars(env, service, *, build_dir, env_file):
     vars = read_environ_vars(build_dir=build_dir, env_file=env_file)
     actual_env = vars.get('GAE_VERSION')
     actual_service = vars.get('GAE_SERVICE')
+    if actual_env is None or actual_service is None:
+        display_environ_vars(env, service, vars)
+        return vars
+
     if not (actual_env == env):
         raise ValueError(
             'The current build is for the %s environment, but you expected %s'  % 
@@ -33,6 +40,15 @@ def check_environ_vars(env, service, *, build_dir, env_file):
             (actual_service, service)
         )
     return vars
+
+
+def display_environ_vars(env, service, vars):
+    print( "******************************", file=sys.stderr)
+    print( "The current build environment:", file=sys.stderr)
+    for (k,v) in vars.items():
+        print( "    %s = %s" % (k,v), file=sys.stderr)
+    print( "******************************", file=sys.stderr)
+
 
 def fetch_environ_vars(env, service, *, build_dir):
     project = read_project_id(env)
